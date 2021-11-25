@@ -24,9 +24,21 @@ def add_user(id,name,gmail,phone) ->str:
     '''.format(id,name,gmail,phone)
     try:
         result = cur.execute(cau_truy_van)
+        con.commit()
         return True
     except Exception as e :
         return e
 
 
+def show_user_id() -> list :
+    cau_truy_van = '''Select id
+    From NhanVien'''
+    try:
+        result =  cur.execute(cau_truy_van)
+        return result.fetchall()
+    except:
+        return None
+
+
 con, cur = connectDbFile('chamCong.db')
+

@@ -1,11 +1,14 @@
 from numpy.lib.arraypad import pad
 from Detector import main_app
 from Manager import Manager
+from NhanVien import NhanVien
 from create_classifier import train_classifer
 from create_dataset import start_capture
 import tkinter as tk
 from tkinter import Label, font as tkfont
 from tkinter import messagebox,PhotoImage
+
+from db import show_user_id
 #from PIL import ImageTk, Image
 #from gender_prediction import emotion,ageAndgender
 names = set()
@@ -15,15 +18,13 @@ class MainUI(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        
+            
         global namess
         global manager 
         manager = None
-        with open("nameslist.txt", "r") as f:
-            x = f.read()
-            z = x.rstrip().split(" ")
-            for i in z:
-                names.add(i)
+        list_id = show_user_id()
+        for i in list_id:
+            names.add(i[0])
         self.title_font = tkfont.Font(family='Helvetica', size=16, weight="bold")
         self.title("Face Recognizer")
         self.resizable(False, False)
@@ -37,7 +38,6 @@ class MainUI(tk.Tk):
         self.frames = {}
         for F in (StartPage, PageOne, PageTwo, PageThree, PageFour,PageManagerLogin,PageManager,PageAddUser):
             page_name = F.__name__
-            print('page_name: ', page_name)
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -49,10 +49,6 @@ class MainUI(tk.Tk):
 
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Are you sure?"):
-            global names
-            f =  open("nameslist.txt", "a+")
-            for i in names:
-                    f.write(i+" ")
             self.destroy()
 
 
@@ -79,10 +75,6 @@ class StartPage(tk.Frame):
 
         def on_closing(self):
             if messagebox.askokcancel("Quit", "Are you sure?"):
-                global names
-                with open("nameslist.txt", "w") as f:
-                    for i in names:
-                        f.write(i + " ")
                 self.controller.destroy()
 
 
@@ -227,29 +219,32 @@ class PageManager(tk.Frame):
         render = PhotoImage(file='managepage.png')
         img = tk.Label(self, image=render)
         img.image = render
-        img.grid(row=0, column=1, rowspan=4, sticky="nsew")
+        img.grid(row=0, column=1, rowspan=5, sticky="nsew")
         label = tk.Label(self,    text="        Quản Lý         ", font=self.controller.title_font,fg="#263942")
         label.grid(row=0, sticky="ew")
         button1 = tk.Button(self, text="     Thêm nhân viên     ", fg="#ffffff", bg="#263942",command=lambda: self.controller.show_frame("PageAddUser"))
-        button2 = tk.Button(self, text="   Thêm data khuôn mặt  \ncho nhân viên", fg="#ffffff", bg="#263942",command=lambda: self.controller.show_frame("PageOne"))
-        # button3 = tk.Button(self, text="Quit", fg="#263942", bg="#ffffff", command=self.on_closing)
+        button2 = tk.Button(self, text="  Thêm data khuôn mặt \ncho nhân viên", fg="#ffffff", bg="#263942",command=lambda: self.controller.show_frame("PageOne"))
+        button3 = tk.Button(self, text="     Tập huấn dữ liệu     ", fg="#ffffff", bg="#263942",command=self.tranningData)
+        button4 = tk.Button(self, text="      Quay lại      ", fg="#263942", bg="#ffffff",command=lambda: self.controller.show_frame("StartPage"))
         button1.grid(row=1, column=0, ipady=3, ipadx=7)
         button2.grid(row=2, column=0, ipady=3, ipadx=2)
-        # button3.grid(row=3, column=0, ipady=3, ipadx=32)
+        button3.grid(row=3, column=0, ipady=3, ipadx=2)
+        button4.grid(row=4, column=0, ipady=3, ipadx=32)
 
 class PageAddUser(tk.Frame):
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
+        self.nhanVien = NhanVien()
         self.controller = controller
         tk.Label(self, text="ID", fg="#263942", font='Helvetica 12 bold').grid(row=1, column=0, pady=(20,10), padx=(110,10))
         self.id = tk.Entry(self, borderwidth=3, bg="lightgrey", font='Helvetica 11')
         self.id.grid(row=1, column=1, pady=(20,10), padx=0)
         tk.Label(self, text="Full name", fg="#263942", font='Helvetica 12 bold').grid(row=2, column=0, pady=(20,10), padx=(110,10))
-        self.gmail = tk.Entry(self, borderwidth=3, bg="lightgrey", font='Helvetica 11')
-        self.gmail.grid(row=2, column=1, pady=(20,10), padx=0)
+        self.name = tk.Entry(self, borderwidth=3, bg="lightgrey", font='Helvetica 11')
+        self.name.grid(row=2, column=1, pady=(20,10), padx=0)
         tk.Label(self, text="Gmail", fg="#263942", font='Helvetica 12 bold').grid(row=3, column=0, pady=(20,10), padx=(110,10))
-        self.dayOfBirth = tk.Entry(self, borderwidth=3, bg="lightgrey", font='Helvetica 11')
-        self.dayOfBirth.grid(row=3, column=1, pady=(20,10), padx=0)
+        self.gmail = tk.Entry(self, borderwidth=3, bg="lightgrey", font='Helvetica 11')
+        self.gmail.grid(row=3, column=1, pady=(20,10), padx=0)
         tk.Label(self, text="Phone", fg="#263942", font='Helvetica 12 bold').grid(row=4, column=0, pady=(20,10), padx=(110,10))
         self.phone = tk.Entry(self, borderwidth=3, bg="lightgrey", font='Helvetica 11')
         self.phone.grid(row=4, column=1, pady=(20,10), padx=0)
@@ -260,7 +255,18 @@ class PageAddUser(tk.Frame):
         button2.grid(row=5, column=0, ipady=3, ipadx=2)
 
     def addUser(self):
-        pass
+        global names
+        if self.id.get() in names:
+            messagebox.showerror("lỗi","Đã tồn tại id này")
+        if self.id.get() == '':
+            messagebox.showerror("Lỗi","Không thể thêm nhân viên có id là rỗng")
+        names.add(self.id.get())
+        self.nhanVien.add_user(self.id.get(),self.name.get(),self.gmail.get(),self.phone.get())
+        self.id.setvar('')
+        self.name.setvar('')
+        self.gmail.setvar('')
+        self.phone.setvar('')
+        messagebox.showinfo("Thêm thành công","Thêm nhân viên thành công")
 
 
 app = MainUI()
