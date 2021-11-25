@@ -1,38 +1,52 @@
+from imutils import face_utils
+import numpy as np
+import argparse
+import imutils
+import dlib
 import cv2
-import os
 
-def start_capture(name):
-        path = "./data/" + name
-        num_of_images = 0
-        detector = cv2.CascadeClassifier("./data/haarcascade_frontalface_default.xml")
+def create_dataset(name):
+    detector = dlib.get_frontal_face_detector()
+
+    predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+
+    cap = cv2.VideoCapture(0)
+
+    dem = 0
+    while True:
+        ret,image = cap.read()
+    
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        rects = detector(gray, 1)
+        new_img = None
+        for (i, rect) in enumerate(rects):
+        # determine the facial landmarks for the face region, then
+        # convert the facial landmark (x, y)-coordinates to a NumPy
+        # array
+            shape = predictor(gray, rect)
+            shape = face_utils.shape_to_np(shape)
+            # convert dlib's rectangle to a OpenCV-style bounding box
+            # [i.e., (x, y, w, h)], then draw the face bounding box
+            (x, y, w, h) = face_utils.rect_to_bb(rect)
+            new_img = image[y-10:y+h+10,x-10:x+h].copy()
+            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # show the face number
+            cv2.putText(image, "Face #{}".format(i + 1), (x - 10, y - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(image, "Dem: {}".format(dem+1), (30,30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # loop over the (x, y)-coordinates for the facial landmarks
+            # and draw them on the image
+            for (x, y) in shape:
+                cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
+
+        cv2.imshow("Output", image)
+        if cv2.waitKey(1)  == 27 or dem == 300:
+            cap.release()
+            cv2.destroyAllWindows()
+            return dem 
         try:
-            os.makedirs(path)
-        except:
-            print('Directory Already Created')
-        vid = cv2.VideoCapture(0)
-        while True:
-
-            ret, img = vid.read()
-            new_img = None
-            grayimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            face = detector.detectMultiScale(image=grayimg, scaleFactor=1.1, minNeighbors=5)
-            for x, y, w, h in face:
-                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 0), 2)
-                cv2.putText(img, "Face Detected", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255))
-                cv2.putText(img, str(str(num_of_images)+" images captured"), (x, y+h+20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255))
-                new_img = img[y:y+h, x:x+w]
-            cv2.imshow("FaceDetection", img)
-            key = cv2.waitKey(1) & 0xFF
-
-
-            try :
-                cv2.imwrite(str(path+"/"+str(num_of_images)+name+".jpg"), new_img)
-                num_of_images += 1
-            except :
-
-                pass
-            if key == ord("q") or key == 27 or num_of_images > 310:
-                break
-        cv2.destroyAllWindows()
-        return num_of_images
-
+            cv2.imwrite('./data/{_name}/{_dem}{_name}.jpg'.format(_name = name, _dem = dem),new_img)
+            dem +=1
+        except: 
+            pass
