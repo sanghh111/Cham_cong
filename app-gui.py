@@ -9,6 +9,8 @@ from tkinter import messagebox,PhotoImage
 from create_dataset import create_dataset
 from db import show_user_id
 import os
+
+from tranning_data import tranning_data
 #from PIL import ImageTk, Image
 #from gender_prediction import emotion,ageAndgender
 names = set()
@@ -164,14 +166,6 @@ class PageThree(tk.Frame):
         self.controller.show_frame('PageManager')
         pass
 
-    # def trainmodel(self):
-    #     if self.controller.num_of_images < 300:
-    #         messagebox.showerror("ERROR", "No enough Data, Capture at least 300 images!")
-    #         return
-    #     # train_classifer(self.controller.active_name)
-    #     messagebox.showinfo("SUCCESS", "The modele has been successfully trained!")
-    #     self.controller.show_frame("PageFour")
-
 
 class PageFour(tk.Frame):
 
@@ -241,7 +235,7 @@ class PageManager(tk.Frame):
 
 
     def tranning_data(self):
-        pass
+        tranning_data()
 
 class PageAddUser(tk.Frame):
     def __init__(self,parent,controller):
