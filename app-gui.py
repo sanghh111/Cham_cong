@@ -119,6 +119,7 @@ class PageTwo(tk.Frame):
         tk.Frame.__init__(self, parent)
         global names
         self.controller = controller
+        self.detect = DetectUser()
         tk.Label(self, text="           Chấm Công              ", fg="#263942", font='Helvetica 16 bold').grid(row=0, column=0, columnspan=2, padx=(70), pady=(40,10))
         self.buttoncanc = tk.Button(self, text="Cancel", command=lambda: controller.show_frame("StartPage"), bg="#ffffff", fg="#263942")
         self.buttonext = tk.Button(self, text="Mở camera", command=self.openCam, fg="#ffffff", bg="#263942")
@@ -126,7 +127,7 @@ class PageTwo(tk.Frame):
         self.buttonext.grid(row=1, ipadx=30, ipady=4, column=1, pady=10)
 
     def openCam(self):
-        user = detect_user()
+        user = self.detect.run()
         if user :
             gmail = NhanVien().get_gmail(user)
             present = datetime.now()
@@ -175,7 +176,7 @@ class PageFour(tk.Frame):
         button4.grid(row=1,column=1, sticky="ew", ipadx=5, ipady=4, padx=10, pady=10)
 
     def openwebcam(self):
-        text = detect_user()
+        text = DetectUser()
         print('text: ', text)
         # main_app(self.controller.active_name)
 
