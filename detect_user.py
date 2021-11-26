@@ -1,11 +1,11 @@
 import os, cv2 ,dlib
+from numpy.core.numeric import True_
 from db import *
 from imutils import face_utils
 from tkinter import messagebox
 import threading
 import time
 
-state = True
 
 
 class CountdownTask:
@@ -17,10 +17,10 @@ class CountdownTask:
         self._running = False
       
     def run(self, n):
+        n = n * 60*10
         while self._running and n > 0:
-            print('T-minus', n)
             n -= 1
-            time.sleep(5)
+            time.sleep(0.1)
         global state
         state = False
         # cap.release()
@@ -49,9 +49,11 @@ class DetectUser():
 
         cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         c = CountdownTask()
-        t1 = threading.Thread(target=c.run,args=(22,))
+        t1 = threading.Thread(target=c.run,args=(2,))
+        t1.setDaemon(True)
         t1.start()
         global state
+        state = True
         text = None
         while state:
             ret, image = cap.read()
@@ -78,7 +80,10 @@ class DetectUser():
                     font = cv2.FONT_HERSHEY_PLAIN
                     image = cv2.putText(image, text, (x, y-4), font, 1, (0, 255, 0), 1, cv2.LINE_AA)
                     messagebox.showinfo("Thông báo","{} chấm công thành công".format(text))
+                    cap.release()
+                    cv2.destroyAllWindows()
                     c.terminate()
+                    return text
                 else:
                     pred = -1
                     text = "UnknownFace"
@@ -91,6 +96,6 @@ class DetectUser():
                 pass
         cap.release()
         cv2.destroyAllWindows()
-        time.sleep(0.5)
+        c.terminate()
         return text
 

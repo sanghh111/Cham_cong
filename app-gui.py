@@ -4,13 +4,14 @@ from NhanVien import NhanVien
 # from create_classifier import train_classifer
 # from create_dataset import start_capture
 import tkinter as tk
-from tkinter import Label, font as tkfont
+from tkinter import Frame, Label, font as tkfont
 from tkinter import messagebox,PhotoImage
 from create_dataset import create_dataset
 from db import show_user_id
 import os
 from detect_user import *
 from send_gmail import send_mail_face_reconnition_success
+from them_du_lien_cham_cong import them_du_lieu_cham_cong
 from tranning_data import tranning_data
 from datetime import datetime
 #from PIL import ImageTk, Image
@@ -41,7 +42,7 @@ class MainUI(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         self.frames = {}
-        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour,PageManagerLogin,PageManager,PageAddUser):
+        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour,PageManagerLogin,PageManager,PageAddUser,PageThongKe):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -131,7 +132,8 @@ class PageTwo(tk.Frame):
         if user :
             gmail = NhanVien().get_gmail(user)
             present = datetime.now()
-            # send_mail_face_reconnition_success(user,gmail,present)
+            them_du_lieu_cham_cong(user,present)
+            send_mail_face_reconnition_success(user,gmail,present)
 
 class PageThree(tk.Frame):
 
@@ -213,17 +215,20 @@ class PageManager(tk.Frame):
         render = PhotoImage(file='managepage.png')
         img = tk.Label(self, image=render)
         img.image = render
-        img.grid(row=0, column=1, rowspan=5, sticky="nsew")
+        img.grid(row=0, column=1, rowspan=6, sticky="nsew")
         label = tk.Label(self,    text="        Quản Lý         ", font=self.controller.title_font,fg="#263942")
         label.grid(row=0, sticky="ew")
         button1 = tk.Button(self, text="     Thêm nhân viên     ", fg="#ffffff", bg="#263942",command=lambda: self.controller.show_frame("PageAddUser"))
         button2 = tk.Button(self, text="  Thêm data khuôn mặt \ncho nhân viên", fg="#ffffff", bg="#263942",command=lambda: self.controller.show_frame("PageOne"))
         button3 = tk.Button(self, text="     Tập huấn dữ liệu     ", fg="#ffffff", bg="#263942",command=self.tranning_data)
-        button4 = tk.Button(self, text="      Quay lại      ", fg="#263942", bg="#ffffff",command=lambda: self.controller.show_frame("StartPage"))
+        button4 = tk.Button(self, text="     Thống kê dữ liệu     ", fg="#ffffff", bg="#263942",command= lambda : self.controller.show_frame("PageThongKe"))
+        button5 = tk.Button(self, text="      Quay lại      ", fg="#263942", bg="#ffffff",command=lambda: self.controller.show_frame("StartPage"))
         button1.grid(row=1, column=0, ipady=3, ipadx=7)
         button2.grid(row=2, column=0, ipady=3, ipadx=2)
         button3.grid(row=3, column=0, ipady=3, ipadx=2)
-        button4.grid(row=4, column=0, ipady=3, ipadx=32)
+        button4.grid(row=4, column=0, ipady=3, ipadx=2)
+        button5.grid(row=5, column=0, ipady=3, ipadx=32)
+
 
 
     def tranning_data(self):
@@ -266,6 +271,15 @@ class PageAddUser(tk.Frame):
         self.phone.set('')
         self.controller.frames["PageOne"].refresh_names()
         messagebox.showinfo("Thêm thành công","Thêm nhân viên thành công")
+
+class PageThongKe(Frame):
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.controller = controller
+        path = os.path.join('./chamcong')
+        self.year = os.listdir(path)
+        
+
 
 app = MainUI()
 app.iconphoto(False, tk.PhotoImage(file='icon.ico'))
