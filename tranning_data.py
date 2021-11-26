@@ -10,10 +10,8 @@ def tranning_data():
     subdirs = root[1]
         
     for subdir in subdirs:
-        print('subdir: ', subdir+'/')
         subpath = os.path.join(path,subdir+'/')
 
-        # for indexTrain,sub in os.walk(subpath):
         faces = []
         ids = []
         pictures = {}
@@ -22,7 +20,6 @@ def tranning_data():
         if len(pictures)> 300:
             for pic in pictures:
                 imgpath = subpath + pic
-                print('imgpath: ', imgpath)
                 img = Image.open(imgpath).convert('L')
                 imgNp = np.array(img,'uint8')
                 id = int(pic.split(subdir)[0])

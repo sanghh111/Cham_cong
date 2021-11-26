@@ -40,5 +40,15 @@ def show_user_id() -> list :
         return None
 
 
+def show_user_gmail_by_id(id) -> str :
+    cau_truy_van = '''Select gmail
+    From NhanVien
+    Where id = "{}"'''.format(id)
+    try:
+        result =  cur.execute(cau_truy_van)
+        return result.fetchone()[0]
+    except:
+        return None
+
 con, cur = connectDbFile('chamCong.db')
 

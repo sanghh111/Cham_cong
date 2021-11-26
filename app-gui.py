@@ -9,12 +9,19 @@ from tkinter import messagebox,PhotoImage
 from create_dataset import create_dataset
 from db import show_user_id
 import os
-
+from detect_user import *
+from send_gmail import send_mail_face_reconnition_success
 from tranning_data import tranning_data
+from datetime import datetime
 #from PIL import ImageTk, Image
 #from gender_prediction import emotion,ageAndgender
-names = set()
 
+names = set()
+list_id = show_user_id()
+if list_id == []:
+    names.add('')
+for i in list_id:
+    names.add(i[0])
 
 class MainUI(tk.Tk):
 
@@ -23,11 +30,6 @@ class MainUI(tk.Tk):
         global namess
         global manager 
         manager = None
-        list_id = show_user_id()
-        if list_id == []:
-            names.add('')
-        for i in list_id:
-            names.add(i[0])
         self.title_font = tkfont.Font(family='Helvetica', size=16, weight="bold")
         self.title("Face Recognizer")
         self.resizable(False, False)
@@ -44,7 +46,7 @@ class MainUI(tk.Tk):
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame("PageManagerLogin")
+        self.show_frame("StartPage")
 
     def show_frame(self, page_name):
             frame = self.frames[page_name]
@@ -117,30 +119,18 @@ class PageTwo(tk.Frame):
         tk.Frame.__init__(self, parent)
         global names
         self.controller = controller
-        tk.Label(self, text="Select user", fg="#263942", font='Helvetica 12 bold').grid(row=0, column=0, padx=10, pady=10)
+        tk.Label(self, text="           Chấm Công              ", fg="#263942", font='Helvetica 16 bold').grid(row=0, column=0, columnspan=2, padx=(70), pady=(40,10))
         self.buttoncanc = tk.Button(self, text="Cancel", command=lambda: controller.show_frame("StartPage"), bg="#ffffff", fg="#263942")
-        self.menuvar = tk.StringVar(self)
-        self.dropdown = tk.OptionMenu(self, self.menuvar, *names)
-        self.dropdown.config(bg="lightgrey")
-        self.dropdown["menu"].config(bg="lightgrey")
-        self.buttonext = tk.Button(self, text="Next", command=self.nextfoo, fg="#ffffff", bg="#263942")
-        self.dropdown.grid(row=0, column=1, ipadx=8, padx=10, pady=10)
-        self.buttoncanc.grid(row=1, ipadx=5, ipady=4, column=0, pady=10)
-        self.buttonext.grid(row=1, ipadx=5, ipady=4, column=1, pady=10)
+        self.buttonext = tk.Button(self, text="Mở camera", command=self.openCam, fg="#ffffff", bg="#263942")
+        self.buttoncanc.grid(row=1, ipadx=30, ipady=4, column=0, pady=10)
+        self.buttonext.grid(row=1, ipadx=30, ipady=4, column=1, pady=10)
 
-    def nextfoo(self):
-        if self.menuvar.get() == "None":
-            messagebox.showerror("ERROR", "Name cannot be 'None'")
-            return
-        self.controller.active_name = self.menuvar.get()
-        self.controller.show_frame("PageFour")
-
-    def refresh_names(self):
-        global names
-        self.menuvar.set('')
-        self.dropdown['menu'].delete(0, 'end')
-        for name in names:
-            self.dropdown['menu'].add_command(label=name, command=tk._setit(self.menuvar, name))
+    def openCam(self):
+        user = detect_user()
+        if user :
+            gmail = NhanVien().get_gmail(user)
+            present = datetime.now()
+            # send_mail_face_reconnition_success(user,gmail,present)
 
 class PageThree(tk.Frame):
 
@@ -185,7 +175,8 @@ class PageFour(tk.Frame):
         button4.grid(row=1,column=1, sticky="ew", ipadx=5, ipady=4, padx=10, pady=10)
 
     def openwebcam(self):
-        pass
+        text = detect_user()
+        print('text: ', text)
         # main_app(self.controller.active_name)
 
 
