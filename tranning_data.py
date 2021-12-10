@@ -17,7 +17,7 @@ def tranning_data():
         pictures = {}
         for root2, dirs2, files2 in os.walk(subpath):
             pictures = files2
-        if len(pictures)> 300:
+        if len(pictures)>= 300:
             for pic in pictures:
                 imgpath = subpath + pic
                 img = Image.open(imgpath).convert('L')
