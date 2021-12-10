@@ -12,8 +12,6 @@ def them_du_lieu_cham_cong(name,present):
     them_floder(path)
     path = os.path.join(path,day[1])
     them_floder(path)
-    # path = os.path.join(path.split())
-    # json.dump()        
     try:
         f =  open(os.path.join(path,'{}.json'.format(day[2])),'r+')
         data = json.load(f)

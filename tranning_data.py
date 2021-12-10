@@ -35,4 +35,3 @@ def tranning_data():
             messagebox.showinfo("Thông báo","Dữ liệu của {} đã được tào thành công".format(subdir))
         else:
             messagebox.showinfo("Thông báo","Dữ liệu của {} không đủ 300 tấm hình".format(subdir))
-

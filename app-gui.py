@@ -143,7 +143,7 @@ class PageThree(tk.Frame):
         self.numimglabel = tk.Label(self, text="Số hình ảnh nhạn diện được = 0", font='Helvetica 12 bold', fg="#263942")
         self.numimglabel.grid(row=0, column=0, columnspan=2, sticky="ew", pady=10)
         self.Cancle = tk.Button(self, text="Quay lại", fg="#ffffff", bg="#263942", command=self.quay_lai)
-        self.trainbutton = tk.Button(self, text="Train The Model", fg="#ffffff", bg="#263942",command=self.capimg)
+        self.trainbutton = tk.Button(self, text="Lấy dữ liệu khuôn mặt nhân viên", fg="#ffffff", bg="#263942",command=self.capimg)
         self.Cancle.grid(row=1, column=0, ipadx=5, ipady=4, padx=10, pady=20)
         self.trainbutton.grid(row=1, column=1, ipadx=5, ipady=4, padx=10, pady=20)
 
@@ -205,6 +205,8 @@ class PageManagerLogin(tk.Frame):
         state =  self.manager.login(self.user_name.get(),self.password.get())
         if state:
             self.controller.show_frame("PageManager")
+        else:
+            messagebox.showerror("Lỗi","Đăng nhập thất bại")
 
 class PageManager(tk.Frame):
     def __init__(self,parent,controller):
@@ -265,10 +267,10 @@ class PageAddUser(tk.Frame):
             messagebox.showerror("Lỗi","Không thể thêm nhân viên có id là rỗng")
         names.add(self.id.get())
         self.nhanVien.add_user(self.id.get(),self.name.get(),self.gmail.get(),self.phone.get())
-        self.id.set('')
-        self.name.set('')
-        self.gmail.set('')
-        self.phone.set('')
+        # self.id.set('')
+        # self.name.set('')
+        # self.gmail.set('')
+        # self.phone.set('')
         self.controller.frames["PageOne"].refresh_names()
         messagebox.showinfo("Thêm thành công","Thêm nhân viên thành công")
 

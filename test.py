@@ -1,8 +1,11 @@
-import os
+import facebook
 
+graph = facebook.GraphAPI(access_token="your_token", version="2.12")
 
-# path = os.path.join('./chamcong')
-# dir = os.listdir(path)
-# print(dir)
-# dir = os.listdir(os.path.join(path,dir[0]))
-# print('dir: ', dir)
+app_id = "Gameso12"
+canvas_url = "https://domain.com/that-handles-auth-response/"
+perms = ["manage_pages","publish_pages"]
+fb_login_url = graph.get_auth_url(app_id, canvas_url, perms)
+print(fb_login_url)
+
+print('graph: ', graph)
